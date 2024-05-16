@@ -29,4 +29,5 @@ type RuleStore interface {
 	IncreaseVersionForAllRulesInNamespace(ctx context.Context, orgID int64, namespaceUID string) ([]ngmodels.AlertRuleKeyWithVersion, error)
 
 	accesscontrol.RuleUIDToNamespaceStore
+	GetAlertRulesGroupsByRuleUIDs(ctx context.Context, query *ngmodels.GetAlertRulesGroupsByRuleUIDsQuery) (map[ngmodels.AlertRuleGroupKey]ngmodels.RulesGroup, error)
 }
