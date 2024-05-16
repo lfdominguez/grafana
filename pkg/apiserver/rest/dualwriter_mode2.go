@@ -211,12 +211,6 @@ func (d *DualWriterMode2) Update(ctx context.Context, name string, objInfo rest.
 		return nil, false, err
 	}
 
-	obj, created, err := d.Legacy.Update(ctx, name, &updateWrapper{upstream: objInfo, updated: updated}, createValidation, updateValidation, forceAllowCreate, options)
-	if err != nil {
-		log.WithValues("object", obj).Error(err, "could not update in legacy storage")
-		return obj, created, err
-	}
-
 	// if the object is found, create a new updateWrapper with the object found
 	if foundObj != nil {
 		accessorOld, err := meta.Accessor(foundObj)
@@ -224,7 +218,7 @@ func (d *DualWriterMode2) Update(ctx context.Context, name string, objInfo rest.
 			log.Error(err, "unable to get accessor for original updated object")
 		}
 
-		accessor, err := meta.Accessor(obj)
+		accessor, err := meta.Accessor(updated)
 		if err != nil {
 			log.Error(err, "unable to get accessor for updated object")
 		}
@@ -236,7 +230,7 @@ func (d *DualWriterMode2) Update(ctx context.Context, name string, objInfo rest.
 
 		objInfo = &updateWrapper{
 			upstream: objInfo,
-			updated:  obj,
+			updated:  updated,
 		}
 	}
 	// TODO: relies on GuaranteedUpdate creating the object if
