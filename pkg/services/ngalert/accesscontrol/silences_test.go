@@ -199,8 +199,7 @@ func TestAuthorizeReadSilence(t *testing.T) {
 					permSets, err := svc.SilenceAccess(context.Background(), testCase.user, []*models.Silence{silence})
 					assert.NoError(t, err)
 					assert.Len(t, permSets, 1)
-					_, has := permSets[silence][models.SilencePermissionRead]
-					assert.Equal(t, testCase.expectedErr == nil, has)
+					assert.Equal(t, testCase.expectedErr == nil, permSets[silence].Has(models.SilencePermissionRead))
 				})
 			}
 		})
@@ -351,8 +350,7 @@ func TestAuthorizeCreateSilence(t *testing.T) {
 					permSets, err := svc.SilenceAccess(context.Background(), testCase.user, []*models.Silence{silence})
 					assert.NoError(t, err)
 					assert.Len(t, permSets, 1)
-					_, has := permSets[silence][models.SilencePermissionCreate]
-					assert.Equal(t, expectedErr == nil, has)
+					assert.Equal(t, expectedErr == nil, permSets[silence].Has(models.SilencePermissionCreate))
 				})
 			}
 		})
@@ -503,8 +501,7 @@ func TestAuthorizeUpdateSilence(t *testing.T) {
 					permSets, err := svc.SilenceAccess(context.Background(), testCase.user, []*models.Silence{silence})
 					assert.NoError(t, err)
 					assert.Len(t, permSets, 1)
-					_, has := permSets[silence][models.SilencePermissionWrite]
-					assert.Equal(t, expectedErr == nil, has)
+					assert.Equal(t, expectedErr == nil, permSets[silence].Has(models.SilencePermissionWrite))
 				})
 			}
 		})
