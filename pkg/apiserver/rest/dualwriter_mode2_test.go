@@ -21,10 +21,10 @@ var exampleOption = &metainternalversion.ListOptions{}
 
 func TestMode2_Create(t *testing.T) {
 	type testCase struct {
-		name           string
 		input          runtime.Object
 		setupLegacyFn  func(m *mock.Mock, input runtime.Object)
 		setupStorageFn func(m *mock.Mock, input runtime.Object)
+		name           string
 		wantErr        bool
 	}
 	tests :=
@@ -82,10 +82,10 @@ func TestMode2_Create(t *testing.T) {
 
 func TestMode2_Get(t *testing.T) {
 	type testCase struct {
-		name           string
-		input          string
 		setupLegacyFn  func(m *mock.Mock, input string)
 		setupStorageFn func(m *mock.Mock, input string)
+		name           string
+		input          string
 		wantErr        bool
 	}
 	tests :=
@@ -154,10 +154,10 @@ func TestMode2_Get(t *testing.T) {
 
 func TestMode2_List(t *testing.T) {
 	type testCase struct {
-		name           string
 		inputLegacy    *metainternalversion.ListOptions
 		setupLegacyFn  func(m *mock.Mock)
 		setupStorageFn func(m *mock.Mock)
+		name           string
 		wantErr        bool
 	}
 	tests :=
@@ -204,10 +204,10 @@ func TestMode2_List(t *testing.T) {
 
 func TestMode2_Delete(t *testing.T) {
 	type testCase struct {
-		name           string
-		input          string
 		setupLegacyFn  func(m *mock.Mock, input string)
 		setupStorageFn func(m *mock.Mock, input string)
+		name           string
+		input          string
 		wantErr        bool
 	}
 	tests :=
@@ -297,10 +297,10 @@ func TestMode2_Delete(t *testing.T) {
 
 func TestMode2_DeleteCollection(t *testing.T) {
 	type testCase struct {
-		name           string
-		input          string
 		setupLegacyFn  func(m *mock.Mock)
 		setupStorageFn func(m *mock.Mock)
+		name           string
+		input          string
 		wantErr        bool
 	}
 	tests :=
@@ -366,12 +366,12 @@ func TestMode2_DeleteCollection(t *testing.T) {
 
 func TestMode2_Update(t *testing.T) {
 	type testCase struct {
-		name           string
-		input          string
+		expectedObj    runtime.Object
 		setupLegacyFn  func(m *mock.Mock, input string)
 		setupStorageFn func(m *mock.Mock, input string)
 		setupGetFn     func(m *mock.Mock, input string)
-		expectedObj    runtime.Object
+		name           string
+		input          string
 		wantErr        bool
 	}
 	tests :=
