@@ -41,9 +41,9 @@ func (d *DualWriterMode2) Create(ctx context.Context, original runtime.Object, c
 		return created, err
 	}
 
-	created, err = enrichReturnedObject(original, created, true)
+	createdLegacy, err := enrichLegacyObject(original, created, true)
 	if err != nil {
-		return created, err
+		return createdLegacy, err
 	}
 
 	rsp, err := d.Storage.Create(ctx, created, createValidation, options)
@@ -206,7 +206,7 @@ func (d *DualWriterMode2) Update(ctx context.Context, name string, objInfo rest.
 		return obj, created, err
 	}
 
-	obj, err = enrichReturnedObject(original, obj, false)
+	obj, err = enrichLegacyObject(original, obj, false)
 	if err != nil {
 		return obj, false, err
 	}
@@ -276,7 +276,7 @@ func parseList(legacyList []runtime.Object) (metainternalversion.ListOptions, ma
 	return options, indexMap, nil
 }
 
-func enrichReturnedObject(originalObj, returnedObj runtime.Object, created bool) (runtime.Object, error) {
+func enrichLegacyObject(originalObj, returnedObj runtime.Object, created bool) (runtime.Object, error) {
 	accessorReturned, err := meta.Accessor(returnedObj)
 	if err != nil {
 		return nil, err
@@ -303,9 +303,10 @@ func enrichReturnedObject(originalObj, returnedObj runtime.Object, created bool)
 	if created {
 		accessorReturned.SetResourceVersion("")
 		accessorReturned.SetUID("")
-		return returnedObj, nil
+		// otherwise, we propagate the original RV and UID
+	} else {
+		accessorReturned.SetResourceVersion(accessorOriginal.GetResourceVersion())
+		accessorReturned.SetUID(accessorOriginal.GetUID())
 	}
-	accessorReturned.SetResourceVersion(accessorOriginal.GetResourceVersion())
-	accessorReturned.SetUID(accessorOriginal.GetUID())
 	return returnedObj, nil
 }
