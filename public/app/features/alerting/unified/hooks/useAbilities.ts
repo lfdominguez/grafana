@@ -222,6 +222,7 @@ export function getAlertmanagerAbilities({
   const canUpdateSilence = isGrafanaFlavoredAlertmanager
     ? ctx.hasPermission(instancePermissions.update) || ctx.hasPermission(AccessControlAction.AlertingSilenceUpdate)
     : ctx.hasPermission(instancePermissions.update);
+
   // list out all of the abilities, and if the user has permissions to perform them
   return {
     // -- configuration --
