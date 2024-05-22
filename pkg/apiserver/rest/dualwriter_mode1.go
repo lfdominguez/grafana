@@ -16,13 +16,11 @@ import (
 type DualWriterMode1 struct {
 	Legacy  LegacyStorage
 	Storage Storage
-	Log     klog.Logger
 	*dualWriterMetrics
+	Log klog.Logger
 }
 
-const (
-	mode1Str = "1"
-)
+const mode1Str = "1"
 
 // NewDualWriterMode1 returns a new DualWriter in mode 1.
 // Mode 1 represents writing to and reading from LegacyStorage.
@@ -71,7 +69,10 @@ func (d *DualWriterMode1) Create(ctx context.Context, obj runtime.Object, create
 
 // Get overrides the behavior of the generic DualWriter and reads only from LegacyStorage.
 func (d *DualWriterMode1) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
+	log := d.Log.WithValues("kind", options.Kind)
 	ctx = klog.NewContext(ctx, log)
+	var method = "get"
+
 	startLegacy := time.Now()
 	res, errLegacy := d.Legacy.Get(ctx, name, options)
 	if errLegacy != nil {
@@ -126,7 +127,7 @@ func (d *DualWriterMode1) Delete(ctx context.Context, name string, deleteValidat
 		d.recordLegacyDuration(true, mode1Str, options.Kind, method, startLegacy)
 		return res, async, err
 	}
-		d.recordLegacyDuration(false, mode1, name, method, startLegacy)
+	d.recordLegacyDuration(false, mode1Str, name, method, startLegacy)
 
 	go func() {
 		startStorage := time.Now()
