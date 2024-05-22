@@ -5,6 +5,7 @@ import { AlertManagerPicker } from 'app/features/alerting/unified/components/Ale
 import { GrafanaAlertmanagerDeliveryWarning } from 'app/features/alerting/unified/components/GrafanaAlertmanagerDeliveryWarning';
 import { SilencesEditor } from 'app/features/alerting/unified/components/silences/SilencesEditor';
 import { getDefaultSilenceFormValues } from 'app/features/alerting/unified/components/silences/utils';
+import { AlertmanagerAction } from 'app/features/alerting/unified/hooks/useAbilities';
 import { useAlertmanager } from 'app/features/alerting/unified/state/AlertmanagerContext';
 import { RulerGrafanaRuleDTO } from 'app/types/unified-alerting-dto';
 
@@ -33,7 +34,7 @@ const SilenceGrafanaRuleDrawer = ({ rulerRule, onClose }: Props) => {
         <GrafanaAlertmanagerDeliveryWarning currentAlertmanager={selectedAlertmanager!} />
 
         <div>
-          <AlertManagerPicker showOnlyReceivingGrafanaAlerts />
+          <AlertManagerPicker showOnlyReceivingGrafanaAlerts actions={[AlertmanagerAction.CreateSilence]} />
           <Divider />
         </div>
 

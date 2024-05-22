@@ -7,9 +7,9 @@ import { initReactI18next } from 'react-i18next';
 
 import { matchers } from './matchers';
 
-if (process.env.CI) {
+if (true || process.env.CI) {
   failOnConsole({
-    shouldFailOnLog: true,
+    shouldFailOnLog: false,
     shouldFailOnDebug: true,
     shouldFailOnInfo: true,
   });

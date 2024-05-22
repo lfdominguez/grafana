@@ -1,5 +1,6 @@
 //DOCS: https://prometheus.io/docs/alerting/latest/configuration/
 import { DataSourceJsonData } from '@grafana/data';
+import { AccessControlAction } from 'app/types';
 
 export type AlertManagerCortexConfig = {
   template_files: Record<string, string>;
@@ -199,6 +200,13 @@ export type Silence = {
   status: {
     state: SilenceState;
   };
+  metadata?: {
+    rule_uid?: string;
+    rule_title?: string;
+    folder_uid?: string;
+    permissions?: Record<string, string>;
+  };
+  accessControl?: Partial<Record<AccessControlAction, boolean>>;
 };
 
 export type SilenceCreatePayload = {

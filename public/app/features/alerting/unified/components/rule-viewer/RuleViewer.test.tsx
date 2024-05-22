@@ -2,7 +2,7 @@ import React from 'react';
 import { render, waitFor, screen, userEvent } from 'test/test-utils';
 import { byText, byRole } from 'testing-library-selector';
 
-import { setBackendSrv, setDataSourceSrv, setPluginExtensionsHook } from '@grafana/runtime';
+import { setBackendSrv, setPluginExtensionsHook } from '@grafana/runtime';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { setupMswServer } from 'app/features/alerting/unified/mockApi';
 import { setFolderAccessControl } from 'app/features/alerting/unified/mocks/server/configure';
@@ -12,7 +12,6 @@ import { AccessControlAction } from 'app/types';
 import { CombinedRule, RuleIdentifier } from 'app/types/unified-alerting';
 
 import {
-  MockDataSourceSrv,
   getCloudRule,
   getGrafanaRule,
   grantUserPermissions,
@@ -21,7 +20,7 @@ import {
 } from '../../mocks';
 import { setupDataSources } from '../../testSetup/datasources';
 import { Annotation } from '../../utils/constants';
-import { DataSourceType, GRAFANA_RULES_SOURCE_NAME } from '../../utils/datasource';
+import { DataSourceType } from '../../utils/datasource';
 import * as ruleId from '../../utils/rule-id';
 
 import { AlertRuleProvider } from './RuleContext';
@@ -71,8 +70,25 @@ setPluginExtensionsHook(() => ({
   isLoading: false,
 }));
 
+/**
+ * "Grants" permissions via contextSrv mock, and additionally sets folder access control
+ * API response to match
+ */
+const grantPermissionsHelper = (permissions: AccessControlAction[]) => {
+  const permissionsHash = permissions.reduce((hash, permission) => ({ ...hash, [permission]: true }), {});
+  grantUserPermissions(permissions);
+  setFolderAccessControl(permissionsHash);
+};
+
+const openSilenceDrawer = async () => {
+  const user = userEvent.setup();
+  await user.click(ELEMENTS.actions.more.button.get());
+  await user.click(ELEMENTS.actions.more.actions.silence.get());
+  await screen.findByText(/Configure silences/i);
+};
+
 beforeAll(() => {
-  grantUserPermissions([
+  grantPermissionsHelper([
     AccessControlAction.AlertingRuleCreate,
     AccessControlAction.AlertingRuleRead,
     AccessControlAction.AlertingRuleUpdate,
@@ -109,22 +125,27 @@ describe('RuleViewer', () => {
     const mockRuleIdentifier = ruleId.fromCombinedRule('grafana', mockRule);
 
     beforeAll(() => {
-      grantUserPermissions([
+      grantPermissionsHelper([
         AccessControlAction.AlertingRuleCreate,
         AccessControlAction.AlertingRuleRead,
         AccessControlAction.AlertingRuleUpdate,
         AccessControlAction.AlertingRuleDelete,
         AccessControlAction.AlertingInstanceCreate,
+        AccessControlAction.AlertingInstanceRead,
+        AccessControlAction.AlertingInstancesExternalRead,
+        AccessControlAction.AlertingInstancesExternalWrite,
       ]);
-      setBackendSrv(backendSrv);
 
-      setFolderAccessControl({
-        [AccessControlAction.AlertingRuleCreate]: true,
-        [AccessControlAction.AlertingRuleRead]: true,
-        [AccessControlAction.AlertingRuleUpdate]: true,
-        [AccessControlAction.AlertingRuleDelete]: true,
-        [AccessControlAction.AlertingInstanceCreate]: true,
-      });
+      const dataSources = {
+        am: mockDataSource<AlertManagerDataSourceJsonData>({
+          name: 'Alertmanager',
+          type: DataSourceType.Alertmanager,
+          jsonData: {
+            handleGrafanaManagedAlerts: true,
+          },
+        }),
+      };
+      setupDataSources(dataSources.am);
     });
 
     it('should render a Grafana managed alert rule', async () => {
@@ -163,33 +184,34 @@ describe('RuleViewer', () => {
       }
     });
 
-    it.skip('renders silencing form correctly and shows alert rule name', async () => {
-      const dataSources = {
-        grafana: mockDataSource<AlertManagerDataSourceJsonData>({
-          name: GRAFANA_RULES_SOURCE_NAME,
-          type: DataSourceType.Alertmanager,
-          jsonData: {
-            handleGrafanaManagedAlerts: true,
-          },
-        }),
-        am: mockDataSource<AlertManagerDataSourceJsonData>({
-          name: 'Alertmanager',
-          type: DataSourceType.Alertmanager,
-          jsonData: {
-            handleGrafanaManagedAlerts: true,
-          },
-        }),
-      };
-      setupDataSources(dataSources.grafana, dataSources.am);
-      setDataSourceSrv(new MockDataSourceSrv(dataSources));
-
-      await renderRuleViewer(mockRule, mockRuleIdentifier);
-
+    it('renders silencing form correctly and shows alert rule name', async () => {
       const user = userEvent.setup();
-      await user.click(ELEMENTS.actions.more.button.get());
-      await user.click(ELEMENTS.actions.more.actions.silence.get());
+      await renderRuleViewer(mockRule, mockRuleIdentifier);
+      await openSilenceDrawer();
 
       expect(await screen.findByLabelText(/^alert rule/i)).toHaveValue(MOCK_GRAFANA_ALERT_RULE_TITLE);
+
+      await user.click(await screen.findByLabelText(/Choose alertmanager/i));
+      const alertmanagerOptions = (await screen.findAllByRole('option')).map((el) => el.textContent);
+      expect(alertmanagerOptions).toEqual(['Grafana', 'Alertmanager']);
+    });
+
+    it('does not show external alertmanagers if the user does not have permission to create silences there', async () => {
+      grantPermissionsHelper([
+        AccessControlAction.AlertingRuleCreate,
+        AccessControlAction.AlertingRuleRead,
+        AccessControlAction.AlertingRuleUpdate,
+        AccessControlAction.AlertingRuleDelete,
+        AccessControlAction.AlertingInstanceCreate,
+        AccessControlAction.AlertingInstanceRead,
+      ]);
+
+      await renderRuleViewer(mockRule, mockRuleIdentifier);
+      await openSilenceDrawer();
+
+      expect(screen.queryByLabelText(/Choose alertmanager/i)).not.toBeInTheDocument();
+      expect(screen.getByText(/Alertmanager/i)).toBeInTheDocument();
+      expect(screen.getByText(/Grafana/i)).toBeInTheDocument();
     });
   });
 

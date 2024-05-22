@@ -258,6 +258,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     justifyContent: 'flex-start',
     gap: theme.spacing(1),
     maxWidth: theme.breakpoints.values.sm,
+    paddingTop: theme.spacing(2),
   }),
 });
 
