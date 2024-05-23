@@ -3,4 +3,4 @@
 // +k8s:defaulter-gen=TypeMeta
 // +groupName=notifications.alerting.grafana.app
 
-package v0alpha1 // import "github.com/grafana/grafana/pkg/apis/alerting/notifications/v0alpha1"
+package v0alpha1 // import "github.com/grafana/grafana/pkg/apis/alerting/notifications/timeinterval/v0alpha1"

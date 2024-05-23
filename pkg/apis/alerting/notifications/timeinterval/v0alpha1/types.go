@@ -1,4 +1,4 @@
-package timeinterval
+package v0alpha1
 
 import (
 	"fmt"

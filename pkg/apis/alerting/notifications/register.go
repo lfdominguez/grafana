@@ -1,12 +1,13 @@
-package v0alpha1
+package notifications
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
+	timeInterval "github.com/grafana/grafana/pkg/apis/alerting/notifications/timeinterval/v0alpha1"
+
 	common "github.com/grafana/grafana/pkg/apimachinery/apis/common/v0alpha1"
-	timeInterval "github.com/grafana/grafana/pkg/apis/alerting/notifications/v0alpha1/timeinterval"
 )
 
 const (
@@ -39,7 +40,7 @@ func AddKnownTypes(scheme *runtime.Scheme) error {
 	return AddKnownTypesGroup(scheme, SchemeGroupVersion)
 }
 
-func AddKnownTypesGroup(scheme *runtime.Scheme, g schema.GroupVersion) error{
+func AddKnownTypesGroup(scheme *runtime.Scheme, g schema.GroupVersion) error {
 	scheme.AddKnownTypes(g,
 		&timeInterval.TimeInterval{},
 		&timeInterval.TimeIntervalList{},

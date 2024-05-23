@@ -8,6 +8,8 @@ import (
 	clientset "github.com/grafana/grafana/pkg/generated/clientset/versioned"
 	servicev0alpha1 "github.com/grafana/grafana/pkg/generated/clientset/versioned/typed/service/v0alpha1"
 	fakeservicev0alpha1 "github.com/grafana/grafana/pkg/generated/clientset/versioned/typed/service/v0alpha1/fake"
+	timeintervalv0alpha1 "github.com/grafana/grafana/pkg/generated/clientset/versioned/typed/timeinterval/v0alpha1"
+	faketimeintervalv0alpha1 "github.com/grafana/grafana/pkg/generated/clientset/versioned/typed/timeinterval/v0alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -68,4 +70,9 @@ var (
 // ServiceV0alpha1 retrieves the ServiceV0alpha1Client
 func (c *Clientset) ServiceV0alpha1() servicev0alpha1.ServiceV0alpha1Interface {
 	return &fakeservicev0alpha1.FakeServiceV0alpha1{Fake: &c.Fake}
+}
+
+// TimeintervalV0alpha1 retrieves the TimeintervalV0alpha1Client
+func (c *Clientset) TimeintervalV0alpha1() timeintervalv0alpha1.TimeintervalV0alpha1Interface {
+	return &faketimeintervalv0alpha1.FakeTimeintervalV0alpha1{Fake: &c.Fake}
 }

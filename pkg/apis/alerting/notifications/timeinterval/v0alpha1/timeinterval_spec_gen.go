@@ -1,4 +1,4 @@
-package timeinterval
+package v0alpha1
 
 // Interval defines model for Interval.
 // +k8s:openapi-gen=true
