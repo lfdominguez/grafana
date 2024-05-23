@@ -1,6 +1,7 @@
 import { cx } from '@emotion/css';
 import { max } from 'lodash';
 import React, { RefCallback, useEffect, useMemo, useRef } from 'react';
+import { isFragment } from 'react-is';
 import { MenuListProps } from 'react-select';
 import { FixedSizeList as List } from 'react-window';
 
@@ -80,13 +81,16 @@ export const VirtualizedSelectMenu = ({
   // flatten the children to account for any categories
   // these will have array children that are the individual options
   const flattenedChildren = children.flatMap((child) => {
-    if (hasArrayChildren(child)) {
-      // need to remove the children from the category else they end up in the DOM twice
-      const childWithoutChildren = React.cloneElement(child, {
-        children: null,
-      });
-      return [childWithoutChildren, ...child.props.children];
+    if (isFragment(child)) {
+      return [...child.props.children];
     }
+    // if (hasArrayChildren(child)) {
+    //   // need to remove the children from the category else they end up in the DOM twice
+    //   const childWithoutChildren = React.cloneElement(child, {
+    //     children: null,
+    //   });
+    //   return [childWithoutChildren, ...child.props.children];
+    // }
     return [child];
   });
 
